@@ -2,7 +2,7 @@ import {pgTable, serial, text, timestamp, varchar, integer, pgEnum} from 'drizzl
 
 export const userSystemEnum = pgEnum('user_system_enum', ['system', 'user']);
 
-//Defining schema for chat history
+/* Defining schema for chat history */
 export const chats = pgTable('chats', {
     id: serial('id').primaryKey(),
     pdfName: text('pdf_name').notNull(),
