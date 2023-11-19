@@ -41,7 +41,9 @@ export async function uploadToS3(file: File){
     }
 }
 
-//Function to access S3 URL of PDF to embed into the Chat screen
+//Function to return S3 URL of PDF to embed into the Chat screen
 export function getS3URL(file_key: string){
-    const url = `https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}`
+    const url = `https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}.s3.us-east-2.amazonaws.com/${file_key}`;
+
+    return url;
 };
