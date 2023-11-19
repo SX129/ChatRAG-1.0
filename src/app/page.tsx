@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { UserButton, auth } from "@clerk/nextjs";
 import Link from "next/link";
 import {LogIn} from 'lucide-react';
+import FileUpload from "@/components/FileUpload";
 
 //Server component used to render initial client homepage
 export default async function Home() {
@@ -28,7 +29,7 @@ export default async function Home() {
 
           <div className="w-full mt-4">
             {isAuth ? (
-              <h1>file-upload</h1>
+              <FileUpload />
             ) : (
               <Link href="/sign-in">
                 <Button>Login to get Started!
