@@ -7,6 +7,7 @@ type Props = {
     children: React.ReactNode;
 };
 
+//Allows caching of data
 const queryClient = new QueryClient();
 
 const Providers = ({children}: Props) => {
