@@ -7,6 +7,7 @@ export async function POST(req: Request, res: Response) {
     const body = await req.json();
     const { file_key, file_name } = body;
     console.log(file_key, file_name);
+    return NextResponse.json({message: 'Success'});
   } catch (error) {
     console.error(error);
     return NextResponse.json(
