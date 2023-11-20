@@ -5,6 +5,7 @@ import { Inbox } from "lucide-react";
 import React from "react";
 import { useDropzone } from "react-dropzone";
 import axios from 'axios';
+import toast from "react-hot-toast";
 
 /* User file upload component */
 const FileUpload = () => {
@@ -30,14 +31,14 @@ const FileUpload = () => {
 
         //File is larger than 10mb
         if (file.size > 10 * 1024 * 1024){
-          alert('Please upload a smaller file.');
+          toast.error('File too large.')
           return;
         }
 
         try {
           const data = await uploadToS3(file);
           if(!data?.file_key || data.file_name){
-            alert("Something went wrong.");
+            toast.error('Something went wrong.')
             return;
           }
           mutate(data, {
@@ -45,7 +46,7 @@ const FileUpload = () => {
               console.log(data);
             },
             onError: (error) => {
-              console.log(error);
+              toast.error('Error creating chat.')
             }
           });
         } catch (error) {
