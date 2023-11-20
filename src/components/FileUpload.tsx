@@ -1,16 +1,17 @@
 "use client";
 import { uploadToS3 } from "@/lib/s3";
 import { useMutation } from "@tanstack/react-query";
-import { Inbox } from "lucide-react";
+import { Inbox, Loader2 } from "lucide-react";
 import React from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
-import {toast} from "react-hot-toast";
+import { toast } from "react-hot-toast";
 
 /* User file upload component */
 const FileUpload = () => {
   //Allows API calls to backend
-  const { mutate } = useMutation({
+  const [uploading, setUploading] = React.useState(false);
+  const { mutate, isPending } = useMutation({
     mutationFn: async ({
       file_key,
       file_name,
@@ -31,7 +32,6 @@ const FileUpload = () => {
     accept: { "application/pdf": [".pdf"] },
     maxFiles: 1,
     onDrop: async (acceptedFiles) => {
-      console.log(acceptedFiles);
       const file = acceptedFiles[0];
 
       //File is larger than 10mb
@@ -41,6 +41,7 @@ const FileUpload = () => {
       }
 
       try {
+        setUploading(true);
         const data = await uploadToS3(file);
         if (!data?.file_key || !data.file_name) {
           toast.error("Something went wrong.");
@@ -56,6 +57,8 @@ const FileUpload = () => {
         });
       } catch (error) {
         console.log(error);
+      } finally {
+        setUploading(false);
       }
     },
   });
@@ -69,10 +72,16 @@ const FileUpload = () => {
         })}
       >
         <input {...getInputProps()} />
-        <>
-          <Inbox className="w-10 h-10 text-blue-500" />
-          <p className="mt-2 text-sm text-slate-400">Drop PDF Here</p>
-        </>
+        {uploading || isPending ? (
+          <>
+            <Loader2 className="h-10 w-10 text-blue-500 animate-spin" />
+          </>
+        ) : (
+          <>
+            <Inbox className="w-10 h-10 text-blue-500" />
+            <p className="mt-2 text-sm text-slate-400">Drop PDF Here</p>
+          </>
+        )}
       </div>
     </div>
   );
