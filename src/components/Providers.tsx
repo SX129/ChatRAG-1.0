@@ -1,12 +1,17 @@
 'use client'
 // All client components must have the above string to define itself
-import React from 'react'
+import React from 'react';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 
-type Props = {}
+type Props = {
+    children: React.ReactNode;
+};
 
-const Providers = (props: Props) => {
+const queryClient = new QueryClient();
+
+const Providers = ({children}: Props) => {
   return (
-    <div>Providers</div>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
 }
 
