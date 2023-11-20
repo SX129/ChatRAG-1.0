@@ -1,6 +1,6 @@
-/* File structure of route.ts maps to endpoint /api/create-chat */
-
 import { NextResponse } from "next/server";
+
+/* File structure of route.ts maps to endpoint /api/create-chat */
 
 export async function POST(req: Request, res: Response) {
   try {
