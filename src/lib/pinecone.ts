@@ -20,6 +20,6 @@ export async function loadS3IntoPinecone(fileKey: string){
 
     //Reading PDF
     const loader = new PDFLoader(file_name);
-    const pages = loader.load();
+    const pages = await loader.load();
     return pages;
 };
