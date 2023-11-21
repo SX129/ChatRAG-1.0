@@ -3,6 +3,7 @@ import AWS from 'aws-sdk';
 /* Function to enable AWS S3 configurations and load file to S3*/
 export async function uploadToS3(file: File){
     try {
+        //Initalizing S3 bucket
         AWS.config.update({
             accessKeyId: process.env.NEXT_PUBLIC_S3_ACCESS_KEY_ID,
             secretAccessKey: process.env.NEXT_PUBLIC_S3_SECRET_ACCESS_KEY,
