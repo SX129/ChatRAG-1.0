@@ -1,5 +1,6 @@
 import { Pinecone } from "@pinecone-database/pinecone";
 import { convertToAscii } from "./utils";
+import { getEmbeddings } from "./embeddings";
 
 //Obtaining the most similar vector embeddings from user query
 export async function getMatchesFromEmbeddings(embeddings: number[], fileKey: string){
@@ -19,7 +20,7 @@ export async function getMatchesFromEmbeddings(embeddings: number[], fileKey: st
         })
 
         return queryResult.matches || [];
-        
+
     } catch (error) {
         console.log('Error querying embeddings.', error);
         throw error;
@@ -28,5 +29,17 @@ export async function getMatchesFromEmbeddings(embeddings: number[], fileKey: st
 
 //Extracting the metadata from vector embeddings
 export async function getContext(query: string, fileKey: string){
+    const queryEmbeddings = await getEmbeddings(query);
 
+    const matches = await getMatchesFromEmbeddings(queryEmbeddings, fileKey);
+
+    //Returning matches that are atleast 70% similar
+    const qualifyingDocs = matches.filter(match => match.score && match.score > 0.7);
+
+    type Metadata = {
+        text: string,
+        pageNumber: number,
+    };
+
+    let docs = qualifyingDocs.map(match => (match.metadata as Metadata).text);
 }
