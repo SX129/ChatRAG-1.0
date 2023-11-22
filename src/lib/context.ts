@@ -4,20 +4,20 @@ import { getEmbeddings } from "./embeddings";
 
 //Obtaining the most similar vector embeddings from user query
 export async function getMatchesFromEmbeddings(embeddings: number[], fileKey: string){
-    const pinecone = new Pinecone({ 
-        apiKey: process.env.PINECONE_API_KEY!,
-        environment: process.env.PINECONE_ENVIRONMENT!
-    });
-
-    const index = pinecone.index('chat-rag');
-
     try {
-        //const namespace = convertToAscii(fileKey);
-        const queryResult = await index.query({
+        const client = new Pinecone({
+            environment: process.env.PINECONE_ENVIRONMENT!,
+            apiKey: process.env.PINECONE_API_KEY!,
+        });
+
+        const pineconeIndex = await client.index('chat-rag');
+        const namespace = pineconeIndex.namespace(convertToAscii(fileKey));
+        
+        const queryResult = await namespace.query({
                 topK: 5,
                 vector: embeddings,
                 includeMetadata: true,
-        })
+        });
 
         return queryResult.matches || [];
 
