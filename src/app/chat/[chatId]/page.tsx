@@ -1,3 +1,4 @@
+import ChatSideBar from '@/components/ChatSideBar';
 import { db } from '@/lib/db';
 import { chats } from '@/lib/db/schema';
 import { auth } from '@clerk/nextjs';
@@ -32,11 +33,17 @@ const ChatPage = async ({params: {chatId}}: Props) => {
     <div className='flex max-h-screen overflow-scroll'>
         <div className='flex w-full max-h-screen overflow-scroll'>
             {/* chat history sidebar */}
-            <div></div>
+            <div className='flex-[1] max-w-xs'>
+                <ChatSideBar chats={_chats} chatId={parseInt(chatId)}/>
+            </div>
             {/* middle pdf viewer */}
-            <div></div>
+            <div className='max-h-screen p-4 overflow-scroll flex-[5]'>
+
+            </div>
             {/* chat message component */}
-            <div></div>
+            <div className='flex-[3] border-l-4 border-l-slate-200'>
+
+            </div>
         </div>
     </div>
   )
