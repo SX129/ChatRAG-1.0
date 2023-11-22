@@ -12,6 +12,8 @@ export const chats = pgTable('chats', {
     fileKey: text('file_key').notNull(),
 });
 
+export type DrizzleChat = typeof chats.$inferSelect;
+
 /*
 Defining schema for chat messages
 Forming 1 to many relationship between messages and chat
