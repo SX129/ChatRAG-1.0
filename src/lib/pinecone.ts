@@ -1,9 +1,10 @@
-import { Pinecone, PineconeRecord } from '@pinecone-database/pinecone';
+import { Pinecone, PineconeRecord, utils } from '@pinecone-database/pinecone';
 import { downloadFromS3 } from './s3-server';
 import {PDFLoader} from 'langchain/document_loaders/fs/pdf';
 import {Document, RecursiveCharacterTextSplitter} from '@pinecone-database/doc-splitter';
 import { getEmbeddings } from './embeddings';
 import md5 from 'md5';
+import { convertToAscii } from './utils';
 
 //Initializing pinecone client connection
 export const pinecone = new Pinecone({ 
@@ -40,7 +41,14 @@ export async function loadS3IntoPinecone(fileKey: string){
     const vectors = await Promise.all(documents.flat().map(embedDocument));
 
     //Storing vectors into PineconeDB
+    const index = pinecone.index('chat-rag');
 
+    console.log('Inserting vectors into Pinecone.');
+    //Ensure that namespace is ascii compatible. Namespace param may be deprecated
+    //const namespace = convertToAscii(fileKey);
+    await index.upsert(vectors);
+
+    return documents[0];
 };
 
 //Embedding from openai into pinecone
