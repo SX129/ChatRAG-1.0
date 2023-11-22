@@ -8,6 +8,14 @@ export const pinecone = new Pinecone({
     environment: process.env.PINECONE_ENVIRONMENT!
 });
 
+//Defining type for pageContent of PDF
+type PDFPage = {
+    pageContent: string;
+    metadata: {
+        loc: {pageNumber: number}
+    }
+}
+
 export async function loadS3IntoPinecone(fileKey: string){
 
     //Downloading PDF from S3
@@ -20,6 +28,6 @@ export async function loadS3IntoPinecone(fileKey: string){
 
     //Reading PDF
     const loader = new PDFLoader(file_name);
-    const pages = await loader.load();
+    const pages = (await loader.load()) as PDFPage[];
     return pages;
 };
