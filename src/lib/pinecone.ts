@@ -1,7 +1,9 @@
-import { Pinecone } from '@pinecone-database/pinecone';
+import { Pinecone, PineconeRecord } from '@pinecone-database/pinecone';
 import { downloadFromS3 } from './s3-server';
 import {PDFLoader} from 'langchain/document_loaders/fs/pdf';
 import {Document, RecursiveCharacterTextSplitter} from '@pinecone-database/doc-splitter';
+import { getEmbeddings } from './embeddings';
+import md5 from 'md5';
 
 //Initializing pinecone client connection
 export const pinecone = new Pinecone({ 
@@ -31,11 +33,36 @@ export async function loadS3IntoPinecone(fileKey: string){
     const loader = new PDFLoader(file_name);
     const pages = (await loader.load()) as PDFPage[];
 
-    //Splitting PDF pages into smaller documents (vectors)
+    //Splitting PDF pages into smaller documents
+    const documents = await Promise.all(pages.map(prepareDocument));
 
+    //Vectorising and embedding smaller documents
+    const vectors = await Promise.all(documents.flat().map(embedDocument));
 
+    //Storing vectors into PineconeDB
 
-    return pages;
+};
+
+//Embedding from openai into pinecone
+async function embedDocument(doc: Document){
+    try {
+        const embeddings = await getEmbeddings(doc.pageContent);
+
+        //Used to ID the vectors in pinecone
+        const hash = md5(doc.pageContent);
+
+        return {
+            id: hash,
+            values: embeddings,
+            metadata: {
+                text: doc.metadata.text,
+                pageNumber: doc.metadata.pageNumber,
+            }
+        } as PineconeRecord;
+    } catch (error) {
+        console.log('Error embedding document.', error);
+        throw error;
+    }
 };
 
 //Ensuring text does not exceed maximum bytes
