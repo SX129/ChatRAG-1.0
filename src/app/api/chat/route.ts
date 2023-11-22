@@ -10,7 +10,7 @@ const config = new Configuration({
 
 const openai = new OpenAIApi(config);
 
-//Endpoint for chat messages
+//Endpoint for chat messages. Using Vercel AI SDK to generate system chat messages.
 export async function POST(req: Request){
     try {
         const {messages} = await req.json();
