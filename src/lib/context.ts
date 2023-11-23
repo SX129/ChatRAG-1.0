@@ -10,13 +10,13 @@ export async function getMatchesFromEmbeddings(embeddings: number[], fileKey: st
             apiKey: process.env.PINECONE_API_KEY!,
         });
 
-        const pineconeIndex = await client.index('chat-rag');
+        const pineconeIndex = await client.index('chatrag');
         const namespace = pineconeIndex.namespace(convertToAscii(fileKey));
         
         const queryResult = await namespace.query({
-                topK: 5,
-                vector: embeddings,
-                includeMetadata: true,
+            topK: 5,
+            vector: embeddings,
+            includeMetadata: true,
         });
 
         return queryResult.matches || [];
@@ -34,14 +34,14 @@ export async function getContext(query: string, fileKey: string){
     const matches = await getMatchesFromEmbeddings(queryEmbeddings, fileKey);
 
     //Returning matches that are atleast 70% similar
-    const qualifyingDocs = matches.filter(match => match.score && match.score > 0.7);
+    const qualifyingDocs = matches.filter((match) => match.score && match.score > 0.7);
 
     type Metadata = {
         text: string,
         pageNumber: number,
     };
 
-    let docs = qualifyingDocs.map(match => (match.metadata as Metadata).text);
+    let docs = qualifyingDocs.map((match) => (match.metadata as Metadata).text);
 
     return docs.join('\n').substring(0,3000);
 }
