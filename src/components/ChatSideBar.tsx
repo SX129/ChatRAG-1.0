@@ -7,26 +7,17 @@ import { Button } from './ui/button'
 import { MessageCircle, PlusCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import axios from 'axios'
+import SubscriptionButton from './SubscriptionButton'
 
 type Props = {
-    chats: DrizzleChat[],
-    chatId: number,
+    chats: DrizzleChat[];
+    chatId: number;
+    isPro: boolean;
 }
 
-const ChatSideBar = ({chats, chatId}: Props) => {
+const ChatSideBar = ({chats, chatId, isPro}: Props) => {
 
     const [loading, setLoading] = React.useState(false);
-    const handleSubscription = async () => {
-        try {
-            setLoading(true);
-            const response = await axios.get('/api/stripe');
-            window.location.href = response.data.url;
-        } catch (error) {
-            console.error(error);
-        } finally{
-            setLoading(false);
-        }
-    }
 
 
   return (
@@ -61,9 +52,7 @@ const ChatSideBar = ({chats, chatId}: Props) => {
                 <Link href='/'>Home</Link>
                 <Link href='https://github.com/SX129/chat-rag' target="_blank">Source</Link>
             </div>
-            <Button className='mt-2 text-white bg-slate-700' disabled={loading} onClick={handleSubscription}>
-                Upgrade To Pro!
-            </Button>
+            <SubscriptionButton isPro={isPro}/>
         </div>
     </div>
   )
