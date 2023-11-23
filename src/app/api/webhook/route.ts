@@ -13,7 +13,7 @@ export async function POST(req: Request){
 
     let event: Stripe.Event;
     try {
-        event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET as string);
+        event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SIGNING_SECRET as string);
     } catch (error) {
         return new NextResponse('Webhook error.', {status: 400});
     }
