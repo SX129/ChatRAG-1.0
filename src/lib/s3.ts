@@ -1,4 +1,3 @@
-import AWS from 'aws-sdk';
 import {PutObjectCommandOutput, S3} from '@aws-sdk/client-s3';
 
 /* Function to enable AWS S3 configurations and load file to S3*/

@@ -26,7 +26,7 @@ export async function downloadFromS3(file_key: string): Promise<string>{
             if (obj.Body instanceof require("stream").Readable){
                 const file = fs.createWriteStream(file_name);
                 file.on("open", function (fd){
-                    //@ts-ignore
+                    // @ts-ignore
                     obj.Body?.pipe(file).on("finish", () => {
                         return resolve(file_name);
                     });
