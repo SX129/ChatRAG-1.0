@@ -17,10 +17,10 @@ export default async function Home() {
   const isPro = await checkSubscription();
   let firstChat;
 
-  if(userId){
+  if (userId) {
     firstChat = await db.select().from(chats).where(eq(chats.userId, userId));
-    if (firstChat){
-      firstChat = firstChat[0]
+    if (firstChat) {
+      firstChat = firstChat[0];
     }
   }
 
@@ -34,14 +34,17 @@ export default async function Home() {
           </div>
 
           <div className="flex mt-2">
-            {isAuth && firstChat && 
-            <Link href={`/chat/${firstChat.id}`}>
-              <Button> Go to Chats
-                <ArrowRight className="ml-2"/>
-              </Button>
-            </Link>}
+            {isAuth && firstChat && (
+              <Link href={`/chat/${firstChat.id}`}>
+                <Button>
+                  {" "}
+                  Go to Chats
+                  <ArrowRight className="ml-2" />
+                </Button>
+              </Link>
+            )}
             <div className="ml-2">
-              <SubscriptionButton isPro={isPro}/>
+              <SubscriptionButton isPro={isPro} />
             </div>
           </div>
 

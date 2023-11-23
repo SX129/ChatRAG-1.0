@@ -6,23 +6,29 @@ import { eq } from "drizzle-orm";
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
 export const checkSubscription = async () => {
-    const {userId} = await auth();
+  const { userId } = await auth();
 
-    if(!userId){
-        return false;
-    }
+  if (!userId) {
+    return false;
+  }
 
-    //Checks if user is in subscription database
-    const _userSubscriptions = await db.select().from(userSubscriptions).where(eq(userSubscriptions.userId, userId));
+  //Checks if user is in subscription database
+  const _userSubscriptions = await db
+    .select()
+    .from(userSubscriptions)
+    .where(eq(userSubscriptions.userId, userId));
 
-    if (!_userSubscriptions[0]){
-        return false;
-    }
+  if (!_userSubscriptions[0]) {
+    return false;
+  }
 
-    const userSubscription = _userSubscriptions[0];
+  const userSubscription = _userSubscriptions[0];
 
-    //Subscription logic
-    const isValid = userSubscription.stripePriceId && userSubscription.stripeCurrentPeriodEnd?.getTime()! + DAY_IN_MS > Date.now();
+  //Subscription logic
+  const isValid =
+    userSubscription.stripePriceId &&
+    userSubscription.stripeCurrentPeriodEnd?.getTime()! + DAY_IN_MS >
+      Date.now();
 
-    return !!isValid;
-}
+  return !!isValid;
+};

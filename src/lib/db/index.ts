@@ -1,5 +1,5 @@
-import {neon, neonConfig} from '@neondatabase/serverless';
-import {drizzle} from 'drizzle-orm/neon-http';
+import { neon, neonConfig } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 
 /*
 Setting up neon database configuration:
@@ -7,8 +7,8 @@ Caches connections being set.
 */
 neonConfig.fetchConnectionCache = true;
 
-if (!process.env.DATABASE_URL){
-    throw new Error('Database URL not found.');
+if (!process.env.DATABASE_URL) {
+  throw new Error("Database URL not found.");
 }
 
 /* Connecting neon database to url */
