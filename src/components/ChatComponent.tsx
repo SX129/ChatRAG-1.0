@@ -6,15 +6,27 @@ import {useChat} from 'ai/react';
 import { Send } from 'lucide-react';
 import { Button } from './ui/button';
 import MessageList from './MessageList';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { Message } from 'ai';
 
 type Props = {chatId: number};
 
 const ChatComponent = ({chatId}: Props) => {
+    const {data, isLoading} = useQuery({
+        queryKey: ["chat", chatId],
+        queryFn: async () => {
+            const response = await axios.post<Message[]>('/api/get-messages', {chatId});
+            return response.data;
+        }
+    });
+
     const {input, handleInputChange, handleSubmit, messages} = useChat({
         api: '/api/chat',
         body: {
             chatId
-        }
+        },
+        initialMessages: data || [],
     });
 
     //Scroll effect to bottom
@@ -34,7 +46,7 @@ const ChatComponent = ({chatId}: Props) => {
             <h3 className='text-xl font-bold'>Chat</h3>
         </div>
 
-        <MessageList messages={messages}/>
+        <MessageList messages={messages} isLoading={isLoading} />
 
         <form onSubmit={handleSubmit} className='sticky bottom-0 inset-x-0 px-2 py-4 bg-white'>
             <div className='flex'>
