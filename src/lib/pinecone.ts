@@ -1,4 +1,4 @@
-import { Pinecone, PineconeRecord, utils } from '@pinecone-database/pinecone';
+import { Pinecone, PineconeRecord } from '@pinecone-database/pinecone';
 import { downloadFromS3 } from './s3-server';
 import {PDFLoader} from 'langchain/document_loaders/fs/pdf';
 import {Document, RecursiveCharacterTextSplitter} from '@pinecone-database/doc-splitter';
@@ -7,18 +7,20 @@ import md5 from 'md5';
 import { convertToAscii } from './utils';
 
 //Initializing pinecone client connection
-export const pinecone = new Pinecone({ 
-    apiKey: process.env.PINECONE_API_KEY!,
-    environment: process.env.PINECONE_ENVIRONMENT!
-});
+export const getPineconeClient = () => {
+    return new Pinecone({ 
+        apiKey: process.env.PINECONE_API_KEY!,
+        environment: process.env.PINECONE_ENVIRONMENT!
+    });
+};
 
 //Defining type for pageContent of PDF
 type PDFPage = {
     pageContent: string;
     metadata: {
-        loc: {pageNumber: number}
-    }
-}
+        loc: {pageNumber: number};
+    };
+};
 
 export async function loadS3IntoPinecone(fileKey: string){
 
@@ -41,12 +43,12 @@ export async function loadS3IntoPinecone(fileKey: string){
     const vectors = await Promise.all(documents.flat().map(embedDocument));
 
     //Storing vectors into PineconeDB
-    const index = pinecone.index('chat-rag');
+    const client = await getPineconeClient();
+    const pineconeIndex = await client.index('chatrag');
+    const namespace = pineconeIndex.namespace(convertToAscii(fileKey));
 
     console.log('Inserting vectors into Pinecone.');
-    //Ensure that namespace is ascii compatible. Namespace param may be deprecated
-    //const namespace = convertToAscii(fileKey);
-    await index.upsert(vectors);
+    await namespace.upsert(vectors);
 
     return documents[0];
 };
@@ -65,7 +67,7 @@ async function embedDocument(doc: Document){
             metadata: {
                 text: doc.metadata.text,
                 pageNumber: doc.metadata.pageNumber,
-            }
+            },
         } as PineconeRecord;
     } catch (error) {
         console.log('Error embedding document.', error);
@@ -91,8 +93,8 @@ async function prepareDocument(page: PDFPage){
             metadata: {
                 pageNumber: metadata.loc.pageNumber,
                 text: truncateStringByBytes(pageContent, 36000),
-            }
-        })
-    ])
+            },
+        }),
+    ]);
     return docs;
 }
