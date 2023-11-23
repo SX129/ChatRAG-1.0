@@ -1,42 +1,41 @@
-import {Configuration, OpenAIApi} from 'openai-edge';
-import { Message, OpenAIStream, StreamingTextResponse} from 'ai';
-import { getContext } from '@/lib/context';
-import { db } from '@/lib/db';
-import { chats, messages as _messages } from '@/lib/db/schema';
-import {eq} from 'drizzle-orm';
-import { NextResponse } from 'next/server';
+import { Configuration, OpenAIApi } from "openai-edge";
+import { Message, OpenAIStream, StreamingTextResponse } from "ai";
+import { getContext } from "@/lib/context";
+import { db } from "@/lib/db";
+import { chats, messages as _messages } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 
-export const runtime = 'edge'
-
+export const runtime = "edge";
 
 const config = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const openai = new OpenAIApi(config);
 
 //Endpoint for chat messages. Using Vercel AI SDK to generate system chat messages.
-export async function POST(req: Request){
-    try {
-        const {messages, chatId} = await req.json();
-        const _chats = await db.select().from(chats).where(eq(chats.id, chatId));
+export async function POST(req: Request) {
+  try {
+    const { messages, chatId } = await req.json();
+    const _chats = await db.select().from(chats).where(eq(chats.id, chatId));
 
-        if(_chats.length != 1){
-            return NextResponse.json({error: 'Chat not found.'}, {status: 404});
-        }
+    if (_chats.length != 1) {
+      return NextResponse.json({ error: "Chat not found." }, { status: 404 });
+    }
 
-        const fileKey = _chats[0].fileKey;
+    const fileKey = _chats[0].fileKey;
 
-        const lastMessage = messages[messages.length - 1];
-        console.log('last message', lastMessage);
+    const lastMessage = messages[messages.length - 1];
+    console.log("last message", lastMessage);
 
-        //Returns relavant vectors and pageContext
-        const context = await getContext(lastMessage.content, fileKey);
+    //Returns relavant vectors and pageContext
+    const context = await getContext(lastMessage.content, fileKey);
 
-        //Creating AI role for responses
-        const prompt = {
-            role: "system",
-            content: `AI assistant is a brand new, powerful, human-like artificial intelligence.
+    //Creating AI role for responses
+    const prompt = {
+      role: "system",
+      content: `AI assistant is a brand new, powerful, human-like artificial intelligence.
             The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
             AI is a well-behaved and well-mannered individual.
             AI is always friendly, kind, and inspiring, and he is eager to provide vivid and thoughtful responses to the user.
@@ -50,35 +49,37 @@ export async function POST(req: Request){
             AI assistant will not apologize for previous responses, but instead will indicated new information was gained.
             AI assistant will not invent anything that is not drawn directly from the context.
             `,
-        };
+    };
 
-        const response = await openai.createChatCompletion({
-            model: 'gpt-3.5-turbo',
-            messages: [
-                prompt, ...messages.filter((message: Message) => message.role === 'user'),
-            ],
-            stream: true,
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [
+        prompt,
+        ...messages.filter((message: Message) => message.role === "user"),
+      ],
+      stream: true,
+    });
+
+    //Saving chat messages
+    const stream = OpenAIStream(response, {
+      onStart: async () => {
+        await db.insert(_messages).values({
+          chatId,
+          content: lastMessage.content,
+          role: "user",
         });
-
-        const stream = OpenAIStream(response, {
-            onStart: async () => {
-                await db.insert(_messages).values({
-                    chatId,
-                    content: lastMessage.content,
-                    role: 'user',
-                });
-            },
-            onCompletion: async (completion) => {
-                await db.insert(_messages).values({
-                    chatId,
-                    content: completion,
-                    role: "system",
-                });
-            },
+      },
+      onCompletion: async (completion) => {
+        await db.insert(_messages).values({
+          chatId,
+          content: completion,
+          role: "system",
         });
+      },
+    });
 
-        return new StreamingTextResponse(stream);
-    } catch (error) {
-        console.log(error)
-    }
+    return new StreamingTextResponse(stream);
+  } catch (error) {
+    console.log(error);
+  }
 }
