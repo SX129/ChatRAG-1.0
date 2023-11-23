@@ -61,7 +61,7 @@ const ChatSideBar = ({chats, chatId}: Props) => {
                 <Link href='/'>Home</Link>
                 <Link href='https://github.com/SX129/chat-rag' target="_blank">Source</Link>
             </div>
-            <Button className='mt-2 text-white bg-slate-700' disabled={loading}>
+            <Button className='mt-2 text-white bg-slate-700' disabled={loading} onClick={handleSubscription}>
                 Upgrade To Pro!
             </Button>
         </div>
