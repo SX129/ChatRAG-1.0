@@ -3,12 +3,15 @@ import { UserButton, auth } from "@clerk/nextjs";
 import Link from "next/link";
 import { LogIn } from "lucide-react";
 import FileUpload from "@/components/FileUpload";
+import { checkSubscription } from "@/lib/subscription";
+import SubscriptionButton from "@/components/SubscriptionButton";
 
 //Server component used to render initial client homepage
 export default async function Home() {
   //Obtaining userID from clerk authentication and transforming it to a boolean
   const { userId } = await auth();
   const isAuth = !!userId;
+  const isPro = await checkSubscription();
 
   return (
     <div className="w-screen min-h-screen bg-gradient-to-r from-rose-100 to-teal-100">
@@ -25,6 +28,9 @@ export default async function Home() {
               <Button> Go to Chats 
               </Button>
             </Link>}
+            <div className="ml-2">
+              <SubscriptionButton isPro={isPro}/>
+            </div>
           </div>
 
           <p className="max-w-xl text-lg mt-1 text-slate-600">
