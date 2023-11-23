@@ -43,7 +43,7 @@ const ChatSideBar = ({chats, chatId}: Props) => {
         <div className='absolute bottom-4 left-4'>
             <div className='flex items-center gap-2 text-sm text-slate-500 flex-wrap'>
                 <Link href='/'>Home</Link>
-                <Link href='https://github.com/SX129/chat-rag'>Source</Link>
+                <Link href='https://github.com/SX129/chat-rag' target="_blank">Source</Link>
             </div>
         </div>
     </div>
