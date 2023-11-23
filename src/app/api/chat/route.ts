@@ -1,11 +1,10 @@
 import {Configuration, OpenAIApi} from 'openai-edge';
-import {OpenAIStream, StreamingTextResponse} from 'ai';
+import { Message, OpenAIStream, StreamingTextResponse} from 'ai';
 import { getContext } from '@/lib/context';
 import { db } from '@/lib/db';
-import { chats } from '@/lib/db/schema';
+import { chats, messages as _messages } from '@/lib/db/schema';
 import {eq} from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { Message } from 'ai/react';
 
 export const runtime = 'edge'
 
@@ -23,15 +22,16 @@ export async function POST(req: Request){
         const _chats = await db.select().from(chats).where(eq(chats.id, chatId));
 
         if(_chats.length != 1){
-            return NextResponse.json({'error': 'Chat not found.'}, {status: 404});
+            return NextResponse.json({error: 'Chat not found.'}, {status: 404});
         }
 
         const fileKey = _chats[0].fileKey;
 
         const lastMessage = messages[messages.length - 1];
+        console.log('last message', lastMessage);
 
         //Returns relavant vectors and pageContext
-        const context = await getContext(lastMessage, fileKey);
+        const context = await getContext(lastMessage.content, fileKey);
 
         //Creating AI role for responses
         const prompt = {
@@ -54,15 +54,31 @@ export async function POST(req: Request){
 
         const response = await openai.createChatCompletion({
             model: 'gpt-3.5-turbo',
-            messages: {
+            messages: [
                 prompt, ...messages.filter((message: Message) => message.role === 'user'),
-            },
+            ],
             stream: true,
         });
 
-        const stream = OpenAIStream(response);
+        const stream = OpenAIStream(response, {
+            onStart: async () => {
+                await db.insert(_messages).values({
+                    chatId,
+                    content: lastMessage.content,
+                    role: 'user',
+                });
+            },
+            onCompletion: async (completion) => {
+                await db.insert(_messages).values({
+                    chatId,
+                    content: completion,
+                    role: "system",
+                });
+            },
+        });
+
         return new StreamingTextResponse(stream);
     } catch (error) {
-        
+        console.log(error)
     }
 }
