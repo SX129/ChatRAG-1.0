@@ -5,6 +5,8 @@ import {PutObjectCommandOutput, S3} from '@aws-sdk/client-s3';
 export async function uploadToS3(file: File):Promise<{ file_key: string; file_name: string}>{
     return new Promise((resolve, reject) => {
         try {
+            
+            //Initializing S3 bucket
             const s3 = new S3({
                 region: 'us-east-2',
                 credentials: {
