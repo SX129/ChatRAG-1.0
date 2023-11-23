@@ -5,6 +5,9 @@ import { LogIn } from "lucide-react";
 import FileUpload from "@/components/FileUpload";
 import { checkSubscription } from "@/lib/subscription";
 import SubscriptionButton from "@/components/SubscriptionButton";
+import { db } from "@/lib/db";
+import { chats } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 //Server component used to render initial client homepage
 export default async function Home() {
@@ -12,6 +15,14 @@ export default async function Home() {
   const { userId } = await auth();
   const isAuth = !!userId;
   const isPro = await checkSubscription();
+  let firstChat;
+
+  if(userId){
+    firstChat = await db.select().from(chats).where(eq(chats.userId, userId));
+    if (firstChat){
+      firstChat = firstChat[0]
+    }
+  }
 
   return (
     <div className="w-screen min-h-screen bg-gradient-to-r from-rose-100 to-teal-100">
@@ -23,8 +34,8 @@ export default async function Home() {
           </div>
 
           <div className="flex mt-2">
-            {isAuth && 
-            <Link href='/chat/1'>
+            {isAuth && firstChat && 
+            <Link href={`/chat/${firstChat.id}`}>
               <Button> Go to Chats 
               </Button>
             </Link>}
