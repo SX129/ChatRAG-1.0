@@ -13,7 +13,7 @@ export async function getMatchesFromEmbeddings(
       apiKey: process.env.PINECONE_API_KEY!,
     });
 
-    const pineconeIndex = await client.index("chatrag");
+    const pineconeIndex = await client.index("chatrag1");
     const namespace = pineconeIndex.namespace(convertToAscii(fileKey));
 
     const queryResult = await namespace.query({
