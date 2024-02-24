@@ -1,24 +1,24 @@
 
 # ChatRAG-1.0
 
-A full stack SaaS AI chat application that uses the RAG framework. This project allows users to upload PDF files and interact with them through an AI assistant.
+ChatRAG-1.0 is a full stack SaaS AI chat application that uses the RAG (Retrieval Augmented Generation) framework. It allows users to upload PDF documents for the most up-to-date information and interact with them through an AI assistant. 
 
 
 ## Tech Stack
 
-**Client:** Next.JS, React, TailwindCSS, Typescript
+**Client:** Next.JS, React, TailwindCSS, Typescript, ShadCN, ClerkAuth
 
-**Server:** Node, Typescript, PostgreSQL, NeonDB, AWS S3, PineconeDB
+**Server:** OpenAI Embeddings API, Stripe, Vercel AI SDK, Node, Typescript, PostgreSQL, NeonDB, DrizzleORM, AWS S3, PineconeDB, LangChain
 
 
 ## Features
 
 - Retrieval Augmented Generation (RAG) Framework
-- OpenAI Embeddings API
-- OpenAI Edge
-- AWS S3
+- AI Assistant (OpenAI)
+- Cloud Storage (AWS)
 - User Authentication (Clerk)
 - Subscription Integration (Stripe)
+- Edge Runtime
 
 
 ## License
